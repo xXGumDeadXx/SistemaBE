@@ -9,17 +9,36 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\RegisterController;
 
+
 //controladores
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\PnfController;
+
 // Sección para las vistas estáticas de la página
 Route::view('/', 'index')->name('index');
 Route::view('/sobre_nosotros', 'aboutUs')->name('aboutUs');
-Route::view('/login', 'auth.login')->name('login');
+
+// Cambia el nombre de esta ruta para evitar el conflicto
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.show');
+
+Route::get('/set-cookie', function() {
+    return response('Cookie set')->cookie('test_cookie', '1', 10);
+});
+
+Route::get('/check-cookie', function(Request $request) {
+    return response()->json([
+        'cookie_present' => $request->cookie('test_cookie') !== null
+    ]);
+});
 
 
 //Dashboard
-Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
 
 #Seccionen donde se mostran las vistas de las secciones de la dashboard
 //Maestros
@@ -41,10 +60,11 @@ Route::prefix('/dashboard/estudiantes')->group(function () {
 Route::view('/dashboard/administradores', 'dashboard.maestro.admin')->name('admin');
 Route::view('/dashboard/becados', 'dashboard.maestro.becados')->name('becados');
 Route::view('/dashboard/sede', 'dashboard.maestro.sede')->name('sede');
-Route::view('/dashboard/pnf', 'dashboard.maestro.pnf')->name('pnf');
+// REMOVIDA DUPLICIDAD: Route::view('/dashboard/pnf', 'dashboard.maestro.pnf')->name('pnf');
+// Ya tienes una ruta GET para PNF con un controlador más abajo.
 
 //Metodos en la seccion de pnf
-Route::get('/dashboard/pnf', [PnfController::class,'info'])->name('pnf');
+Route::get('/dashboard/pnf', [PnfController::class,'info'])->name('pnf'); // Esta es la ruta principal de PNF
 Route::post('/dashboard/pnf/agregar', [PnfController::class,'agregar']);
 Route::delete('/dashboard/pnf/borrar/{id}', [PnfController::class,'borrar']);
 Route::get('/dashboard/pnf/estatus/{id}', [PnfController::class,'estatus']);
@@ -69,7 +89,9 @@ Route::view('/dashboard/servicios/comedor', 'dashboard.servicios.comedor')->name
 Route::view('/dashboard/servicios/atencion_social', 'dashboard.servicios.atencion_social')->name('atencion_social');
 Route::view('/dashboard/servicios/censo', 'dashboard.reporte.censo')->name('censo');
 
-Route::post('login', [LoginController::class, 'login'])->name('login');
+// Esta ruta de POST login está correcta, solo necesita un nombre único o si es el principal, usar 'login'
+Route::post('login', [LoginController::class, 'login'])->name('login'); // Esta es la que debes mantener con 'login'
+
 Route::post('register', [RegisterController::class, 'register'])->name('register');
 
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
@@ -84,4 +106,15 @@ Route::get('/verificar-email', function (Illuminate\Http\Request $request) {
     return response()->json(['exists' => $exists]);
 });
 
+Route::get('/session-debug', function(Request $request) {
+    \Log::debug('Session ID: ' . $request->session()->getId());
+    \Log::debug('Session Data: ' . print_r($request->session()->all(), true));
+    
+    return response()->json([
+        'session_id' => $request->session()->getId(),
+        'session_data' => $request->session()->all(),
+        'auth_check' => Auth::check(),
+        'user' => Auth::check() ? Auth::user() : null
+    ]);
+});
 

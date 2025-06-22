@@ -56,4 +56,9 @@ class Persona extends Model
     {
         return $this->hasMany(RegisDiarioComedor::class, 'id_persona');
     }
+
+    public function users()
+    {
+        return $this->hasOne(User::class, 'id_persona');
+    }
 }

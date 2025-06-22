@@ -10,11 +10,16 @@
             <p class="title">Control Administrativo del <br>Departamento del Bienestras Estudiantil</p>
             <a href="{{ route('dashboard') }}" class="navbar-brand ms-5 nav-link">Panel de control/</a>
             @yield('links')
-        </div>
+        </div>  
         <div id="hora">
-            <span class="navbar-text" id="spanHora" style="color: white"></span><br>
-            <strong>Bienvenido Usuario: Angel Linarez</strong>
-        </div>
+    <span class="navbar-text" id="spanHora" style="color: white"></span><br>
+
+    <strong>
+        @auth {{-- Verifica si hay un usuario autenticado --}}
+        Bienvenido, {{ Auth::user()?->persona?->nombre_persona ?? 'Invitado' }}
+        @endauth
+    </strong>
+</div>
     </div>
 </nav>
 <!-- Secondary nav -->

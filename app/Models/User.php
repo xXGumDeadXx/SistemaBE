@@ -6,17 +6,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use  HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
-     *
+    
      * @var list<string>
      */
+    protected $table = 'users';
+    protected $primaryKey = 'id_usuario';
     protected $fillable = [
         'name',
         'apellido',
@@ -50,5 +53,10 @@ class User extends Authenticatable
     public function permisos()
     {
         return $this->belongsToMany(Permiso::class, 'user_permiso', 'id_usuario', 'id_permiso');
+    }
+
+    public function persona()
+    {
+        return $this->belongsTo(Persona::class, 'id_persona');
     }
 }

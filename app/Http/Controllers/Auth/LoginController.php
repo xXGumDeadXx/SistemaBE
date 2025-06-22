@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+// Quita la línea 'use App\Models\User;' de aquí si ya no la necesitas,
+// ya que Auth::attempt() no la usa directamente.
+// use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -22,6 +26,11 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers, ThrottlesLogins;
+
+
+    protected $redirectTo = '/dashboard';
+
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -32,67 +41,80 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
+        // Registra los datos de la cédula que se intentan loguear.
+        Log::info('Intento de login con cédula: ' . $request->cedula);
+
         // Si las credenciales son correctas
-        if (Auth::attempt($request->only('cedula', 'password'))) {
-            $request->session()->regenerate();
-            $this->clearLoginAttempts($request);
-            //Recoger los datos del usuario autenticado
+        if ($this->attemptLogin($request)) { 
+
+            // Registra que Auth::attempt fue exitoso.
+            Log::info('Auth::attempt ha devuelto TRUE.');
+
+            // Obtener el usuario autenticado 
             $user = Auth::user();
-            session([
-                "cedula" => $user->cedula,
-            ]);
+            Log::info('Auth::check() es TRUE. Usuario ID: ' . ($user->id_usuario ?? 'ID_USUARIO NO ENCONTRADO O NULL') . ' Tipo de ID: ' . gettype($user->id_usuario));
+            Log::info('Nombre de persona asociado: ' . ($user->persona->nombre_persona ?? 'NO ASOCIADO O NULL'));
 
-            return redirect()->intended('/dashboard');
+
+            // --- DEPURACIÓN DE SESIÓN ---
+            Log::info('ID de sesión ANTES de regenerar: ' . session()->getId());
+            $request->session()->regenerate();
+            Log::info('ID de sesión DESPUÉS de regenerar: ' . session()->getId());
+            Log::info('Contenido de la sesión DESPUÉS de regenerar: ' . json_encode(session()->all()));
+            // --- FIN DE DEPURACIÓN ---
+
+            $this->clearLoginAttempts($request); // Limpia los intentos de login
+
+            // Redirige al usuario a la URL prevista o al dashboard.
+            return $this->sendLoginResponse($request); 
+
+
+        } else {
+            // Manejo de intento fallido
+            Log::warning('Auth::attempt ha devuelto FALSE. Las credenciales son incorrectas.');
+            $this->incrementLoginAttempts($request);
+
+            if ($this->hasTooManyLoginAttempts($request)) {
+                $this->fireLockoutEvent($request);
+
+                return $this->sendLockoutResponse($request); // Usa el método del trait para bloqueo
+            }
+
+            return $this->sendFailedLoginResponse($request); // Usa el método del trait para respuesta fallida
         }
-
-        // Si falló, sumar intento
-        $this->incrementLoginAttempts($request);
-
-        // Si ya superó el límite
-        if ($this->hasTooManyLoginAttempts($request)) {
-            $this->fireLockoutEvent($request);
-
-            return back()
-                ->withErrors(['cedula' => 'Demasiados intentos. Inténtalo en unos minutos.'])
-                ->with('lockout', true); // Clave para temporizador en el blade
-        }
-
-        // Fallo sin superar el límite
-        return back()->withErrors([
-            'cedula' => 'Datos incorrectos.',
-        ])->withInput();
     }
 
-    // Validación de campos
+
+    // Validación de campos 
     protected function validateLogin(Request $request)
     {
         $request->validate([
-            'cedula' => 'required|string',
+            $this->username() => 'required|string',
             'password' => 'required|string',
         ]);
     }
 
-    // Límite de intentos
+    // Límite de intentos 
     protected function maxAttempts()
     {
         return 3;
     }
 
-    // Tiempo de espera en minutos
+    // Tiempo de espera en minutos 
     protected function decayMinutes()
     {
         return 3;
     }
 
-    // Nombre del campo de usuario
+    // Nombre del campo de usuario 
     public function username()
     {
         return 'cedula';
     }
 
-    // Clave para contar intentos por IP y usuario
-    protected function throttleKey()
+    // Clave para contar intentos por IP y usuario 
+    protected function throttleKey(Request $request) // Asegúrate que recibe Request
     {
-        return strtolower($this->username()) . '|' . request()->ip();
+        return strtolower($request->input($this->username())) . '|' . $request->ip();
     }
 }
