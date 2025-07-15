@@ -47,6 +47,10 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('/dashboard/estudiantes')->group(function () {
     // Ruta para mostrar los estudiantes en la tabla
     Route::get('/', [PersonaController::class, 'info'])->name('estudiantes');
+
+
+    //Ruta para procesar el formulario y guardar el nuevo estudiante 
+    Route::post('/',[PersonaController::class,'store'])->name('estudiantes.store');
     // Ruta para eliminar un estudiante por su cédula
     Route::delete('/{cedula}', [PersonaController::class, 'deleteEstudiante'])
         ->where('cedula', '[0-9]+')

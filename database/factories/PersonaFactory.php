@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
+use App\Models\Perfil;
+use App\Models\Sede;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Persona>
@@ -17,18 +19,23 @@ class PersonaFactory extends Factory
      */
     public function definition(): array
     {
+        $generos = ['Masculino', 'Femenino', 'Otro'];
+        $edad = fake()->numberBetween(16, 60);
+        $fechaNacimiento =fake()->dateTimeBetween('-' . $edad .  'years','-'. $edad . 'years + 11 months')->format('Y-m-d');
         return [
             'nombre_persona' => fake()->firstName(),
+            'segundo_nombre_persona' => fake()->firstName(),
             'apellido_persona' => fake()->lastName(),
-            'cedula_persona'=> random_int(10000000, 99999999), // Random 8-digit number
-            'telefono_persona' => random_int(600000000, 699999999), // Random 9-digit number starting with 6
-            'genero_persona' => 'Masculino',
-            'edad_persona' => rand(18, 60),
-            'fecha_nacimiento_persona' => now()->subYears(rand(18, 60))->format('Y-m-d'),
+            'segundo_apellido_persona' => fake()->lastName(),
+            'cedula_persona'=> fake()->unique()->numerify('#########'), // genera un numero unico y aleatorio
+            'telefono_persona' => fake()->numerify('04#########'), // genera un numero de 11 digitos q comienza con 04
+            'genero_persona' => fake()->randomElement($generos),
+            'edad_persona' => $edad,
+            'fecha_nacimiento_persona' => $fechaNacimiento,
             'email_persona' => Str::random(10) . '@example.com',
-            'regis_patria' => random_int(0,1),
-            'id_perfil' => 1, // Assuming a profile with ID 1 exists
-            'id_sede' => 1, // Assuming a sede with ID 1 exists
+            'regis_patria' => fake()->boolean(),
+            'id_perfil' => Perfil::inRandomOrder()->first()->id ?? 1, // obtiene un id existente o 1 si no hay 
+            'id_sede' => Sede::inRandomOrder()->first()->id ?? 1, // obtiene un id existente o 1 si no hay
         ];
     }
 }

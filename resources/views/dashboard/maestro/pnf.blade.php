@@ -65,14 +65,14 @@
                         <td>
                             @if($pnf->id_estatus === 1)
                                 <div class="form-check form-switch d-flex align-items-center" style="margin-bottom: 0;">
-                                    <input class="form-check-input sede-switch" type="checkbox" id="sedeCentralSwitch" checked style="width: 2.5em; height: 1.3em;" data-sede="Informatica" data-pnf-id="{{ $pnf->id_pnf }}">
+                                    <input class="form-check-input sede-switch sedeCentralSwitch" type="checkbox" id="sedeCentralSwitch" checked style="width: 2.5em; height: 1.3em;" data-sede="Informatica" data-pnf-id="{{ $pnf->id_pnf }}">
                                     <label class="form-check-label ms-2" for="sedeCentralSwitch" style="user-select: none;">
                                         Activo
                                     </label>
                                 </div>
                             @else
                                 <div class="form-check form-switch d-flex align-items-center" style="margin-bottom: 0;">
-                                    <input class="form-check-input sede-switch" type="checkbox" id="sedeCentralSwitch" style="width: 2.5em; height: 1.3em;" data-sede="Informatica" data-pnf-id="{{ $pnf->id_pnf }}">
+                                    <input class="form-check-input sede-switch sedeCentralSwitch" type="checkbox" id="sedeCentralSwitch" style="width: 2.5em; height: 1.3em;" data-sede="Informatica" data-pnf-id="{{ $pnf->id_pnf }}">
                                     <label class="form-check-label ms-2" for="sedeCentralSwitch" style="user-select: none;">
                                         Inactivo
                                     </label>

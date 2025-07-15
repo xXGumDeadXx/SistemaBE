@@ -18,6 +18,10 @@ class PerfilSeeder extends Seeder
                 'nombre_perfil' => 'Estudiante',
                 'id_estatus' => 1,
             ],
+            [
+                'nombre_perfil' => 'Administrador',
+                'id_estatus' => 2,
+            ],
         ]);
     }
 }

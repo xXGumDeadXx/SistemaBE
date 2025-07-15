@@ -59,7 +59,9 @@ function validarInputVacio(input) {
 document.addEventListener('DOMContentLoaded', function() {
     // Validación para el campo Cédula en editar estudiante
     document.getElementById('editCedula').addEventListener('input', function() {
+
         // Solo números y máximo 8 dígitos
+        
         validarInputVacio1(this);
     });
 
@@ -76,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
     mostrarFecha('editFechaNacimiento', 'editEdad');
 
 })
+
+
 
 
 
@@ -342,7 +346,39 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+// Mostrar/ocultar campos extra de Portuguesa en editar estudiante
+document.addEventListener('DOMContentLoaded', function() {
+    const direccionSelect = document.getElementById('editDireccion');
+    const portuguesaFields = document.getElementById('portuguesaFields');
+    direccionSelect.addEventListener('change', function() {
+        if (this.value === 'Portuguesa') {
+            portuguesaFields.style.display = '';
+        } else {
+            portuguesaFields.style.display = 'none';
+            // Opcional: limpiar los campos si se ocultan
+            document.getElementById('editSector').value = '';
+            document.getElementById('editCalle').value = '';
+            document.getElementById('editCasa').value = '';
+        }
+    });
+});
 
+
+// Mostrar/ocultar campos extra de Portuguesa en registrar estudiante
+document.addEventListener('DOMContentLoaded', function() {
+    const direccionSelect = document.getElementById('regDireccion');
+    const portuguesaFields = document.getElementById('regPortuguesaFields');
+        direccionSelect.addEventListener('change', function() {
+        if (this.value === 'Portuguesa') {
+            portuguesaFields.style.display = '';
+        } else {
+            portuguesaFields.style.display = 'none';
+            document.getElementById('regSector').value = '';
+            document.getElementById('regCalle').value = '';
+            document.getElementById('regCasa').value = '';
+        }
+    });
+});
 
 
 
@@ -563,8 +599,9 @@ document.addEventListener('DOMContentLoaded', function () {
         validarInputVacio1(this, true);
     });
 
-    // Animación y mostrar/ocultar campos extra de patria
+    // Animación y mostrar/ocultar campos extra de foráneo
     const foraneoCheckbox = document.getElementById('regForaneo');
+    const extraFields = document.getElementById('patriaExtraFields');
     foraneoCheckbox.addEventListener('change', function() {
         if (this.checked) {
             extraFields.style.display = 'block';

@@ -16,7 +16,7 @@
 
     <strong>
         @auth {{-- Verifica si hay un usuario autenticado --}}
-        Bienvenido, {{ Auth::user()?->persona?->nombre_persona ?? 'Invitado' }}
+        Bienvenido, {{ Auth::user()?->persona?->nombre_persona ?? '' }} {{ Auth::user()?->persona?->apellido_persona ?? 'Invitado' }}
         @endauth
     </strong>
 </div>
